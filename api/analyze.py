@@ -1,22 +1,29 @@
+from typing import List
 from fastapi import FastAPI
 from pydantic import BaseModel
 import jieba
 from yattag import Doc
 import jieba.posseg as pseg
+from fastapi.middleware.cors import CORSMiddleware
 # jieba.enable_parallel(4)
-
 app = FastAPI()
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=['*'],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 class Text(BaseModel):
-    content: str
+    content: List[str]
 
 def trim(s: str):
+    # return s
     temp = s.strip()
     return temp.replace(' ', '')
 
 def _analyze_json(text: Text):
-    article = text.content
-    paragraphs = article.split(r'\n')
+    paragraphs = text.content
     trimmed_paragraphs = list(map(trim, paragraphs))
     ret = []
     for par_id, trimmed_paragraph in enumerate(trimmed_paragraphs):
@@ -27,9 +34,8 @@ def _analyze_json(text: Text):
     
     return ret
 
-def _analyze_html(text: Text):
-    article = text.content
-    paragraphs = article.split(r'\n')
+def _analyze_html(text_: Text):
+    paragraphs = text_.content
     trimmed_paragraphs = list(map(trim, paragraphs))
     doc, tag, text = Doc().tagtext()
     with tag('article'):
