@@ -48,5 +48,5 @@ def analyze(html: bool, text: Text):
         return _analyze_html(text)
     else:
         return _analyze_json(text)
-    
+
     
